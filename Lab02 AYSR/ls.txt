@@ -1,0 +1,113 @@
+#!/bin/sh
+
+clear
+echo "Ingresa el directorio a analizar:"
+read DIR
+
+if [ ! -d "$DIR" ]; then
+  echo "El directorio no existe"
+  exit 1
+fi
+
+echo "¿Deseas incluir subdirectorios?"
+echo "1) Solo el directorio"
+echo "2) Directorio y subdirectorios"
+read SCOPE
+
+get_files() {
+  if [ "$SCOPE" = "2" ]; then
+    find "$DIR" -mindepth 1
+  else
+    ls -a "$DIR"
+  fi
+}
+
+pause() {
+  echo ""
+  echo "Presiona ENTER para continuar"
+  read x
+}
+
+while true
+do
+  clear
+  echo " Menu "
+  echo "1) Mas recientes (contar misma fecha)"
+  echo "2) Mas antiguos (contar misma fecha)"
+  echo "3) Mayor a menor (contar mismo tamaño)"
+  echo "4) Menor a mayor (contar mismo tamaño)"
+  echo "5) Tipo de archivo (Archivo / Directorio)"
+  echo "6) Filtrar por nombre"
+  echo "7) Salir"
+  echo "Selecciona una opcion:"
+  read OPT
+
+  case $OPT in
+
+  1)
+    clear
+    ls -la "$DIR" | awk '{print $6,$7,$8}' | sort -r | uniq -c | more
+    pause
+    ;;
+
+  2)
+    clear
+    ls -la "$DIR" | awk '{print $6,$7,$8}' | sort | uniq -c | more
+    pause
+    ;;
+
+  3)
+    clear
+    ls -la "$DIR" | awk '{print $5}' | sort -nr | uniq -c | more
+    pause
+    ;;
+
+  4)
+    clear
+    ls -la "$DIR" | awk '{print $5}' | sort -n | uniq -c | more
+    pause
+    ;;
+
+  5)
+    clear
+    ls -la "$DIR" | awk '
+    /^d/ {dir++}
+    /^-/ {file++}
+    END {
+      print "Directorios:", dir
+      print "Archivos:", file
+    }' | more
+    pause
+    ;;
+
+  6)
+    clear
+    echo "Filtro:"
+    echo "1) Empieza con"
+    echo "2) Termina con"
+    echo "3) Contiene"
+    read F
+
+    echo "Ingresa texto:"
+    read TXT
+
+    clear
+    case $F in
+      1) ls -a "$DIR" | grep "^$TXT" | more ;;
+      2) ls -a "$DIR" | grep "$TXT\$" | more ;;
+      3) ls -a "$DIR" | grep "$TXT" | more ;;
+    esac
+    pause
+    ;;
+
+  7)
+    echo "Saliendo"
+    exit 0
+    ;;
+
+  *)
+    echo "Opcion invalida"
+    pause
+    ;;
+  esac
+done

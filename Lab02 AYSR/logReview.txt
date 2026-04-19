@@ -1,0 +1,77 @@
+#!/bin/sh
+
+# Definimos posibles archivos de log (Slackware y Solaris)
+LOG1="/var/log/messages"
+LOG2="/var/log/syslog"
+LOG3="/var/adm/messages"
+
+pause() {
+  echo
+  echo "Presiona ENTER para continuar"
+  read x
+}
+
+show_logs() {
+  for LOG in $LOG1 $LOG2 $LOG3
+  do
+    if [ -f "$LOG" ]; then
+      echo " $LOG "
+      tail -n 15 "$LOG"
+      echo
+    else
+      echo " $LOG NO EXISTE "
+      echo
+    fi
+  done
+}
+
+filter_logs() {
+  WORD="$1"
+  for LOG in $LOG1 $LOG2 $LOG3
+  do
+    if [ -f "$LOG" ]; then
+      echo " $LOG (filtrado por '$WORD') "
+      tail -n 15 "$LOG" | grep "$WORD"
+      echo
+    else
+      echo " $LOG no existe "
+      echo
+    fi
+  done
+}
+
+while true
+do
+  clear
+  echo " Menu "
+  echo "1) Mostrar las ultimas 15 lineas de logs del sistema"
+  echo "2) Filtrar esas lineas por una palabra"
+  echo "3) Salir"
+  echo
+  echo "Selecciona una opcion:"
+  read OPT
+
+  case $OPT in
+    1)
+      clear
+      show_logs | more
+      pause
+      ;;
+    2)
+      clear
+      echo "Ingresa la palabra a filtrar:"
+      read WORD
+      clear
+      filter_logs "$WORD" | more
+      pause
+      ;;
+    3)
+      echo "Saliendo"
+      exit 0
+      ;;
+    *)
+      echo "Opcion invalida"
+      pause
+      ;;
+  esac
+done

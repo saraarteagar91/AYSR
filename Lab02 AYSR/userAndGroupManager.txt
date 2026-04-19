@@ -1,0 +1,90 @@
+#!/bin/sh
+
+while true
+do
+clear
+echo " USER AND GROUP MANAGEMENT"
+echo "1. Crear nuevo grupo"
+echo "2. Crear nuevo usuario"
+echo "3. Salir"
+echo -n "Seleccione una opcion: "
+read option
+
+case $option in
+
+1)
+    echo "Ingresa nombre del grupo:"
+    read GROUPNAME
+
+    echo "Ingrese GID:"
+    read GID
+
+    groupadd -g "$GID" "$GROUPNAME"
+
+    if [ $? -eq 0 ]; then
+        echo "Grupo creado correctamente"
+    else
+        echo "Error al crear grupo"
+    fi
+
+    read -p "Presiona ENTER para continuar"
+;;
+
+2)
+    echo "Ingresa nombre de usuario:"
+    read USERNAME
+
+    echo "Ingresa grupo:"
+    read GROUP
+
+    echo "Ingresa nombre completo:"
+    read COMMENT
+
+    echo "Ingresa directorio home:"
+    read HOME
+
+    echo "Ingresa shell:"
+    read SHELL
+
+    echo "Permisos para usuario (ej: 7):"
+    read PERM_USER
+
+    echo "Permisos para grupo (ej: 5):"
+    read PERM_GROUP
+
+    echo "Permisos para otros (ej: 5):"
+    read PERM_OTHER
+
+    useradd -g "$GROUP" -c "$COMMENT" -d "$HOME" -m -s "$SHELL" "$USERNAME"
+
+    if [ $? -eq 0 ]; then
+
+        PERMISSIONS="$PERM_USER$PERM_GROUP$PERM_OTHER"
+
+        chmod "$PERMISSIONS" "$HOME"
+
+        echo "Usuario creado correctamente"
+        echo "Permisos aplicados: $PERMISSIONS"
+
+    else
+
+        echo "Error al crear usuario"
+
+    fi
+
+    read -p "Presiona ENTER para continuar"
+;;
+
+3)
+    echo "Saliendo"
+    exit
+;;
+
+*)
+    echo "Opcion invalida"
+    read -p "Presione ENTER"
+;;
+
+esac
+
+done
