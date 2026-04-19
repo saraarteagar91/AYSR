@@ -1,0 +1,44 @@
+#!/bin/sh
+
+while true
+do
+    echo " MAIN MENU:"
+    echo "1. Show running processes"
+    echo "2. Search process"
+    echo "3. Kill process"
+    echo "4. Restart process"
+    echo "5. Exit"
+    echo -n "Choose option: "
+    read option
+
+    case $option in
+        1)
+            ps aux | head -15
+            ;;
+        2)
+            echo -n "Enter process name: "
+            read pname
+            ps aux | grep "$pname" | grep -v grep
+            ;;
+        3)
+            echo -n "Enter PID to kill: "
+            read pid
+            kill "$pid"
+            echo "Process killed."
+            ;;
+        4)
+            echo -n "Enter command to restart: "
+            read cmd
+            $cmd &
+            echo "Process restarted."
+            ;;
+        5)
+            echo "Exiting..."
+            exit 0
+            ;;
+        *)
+            echo "Invalid option"
+            ;;
+    esac
+done
+

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 number_of_files max_size_in_MB"
+    exit 1
+fi
+
+NUM_FILES=$1
+MAX_MB=$2
+
+# Convert MB to bytes
+MAX_BYTES=$(($MAX_MB * 1000000))
+
+find / -type f -size -${MAX_BYTES}c 2>/dev/null | \
+while read file
+do
+    size=$(stat -f %z "$file" 2>/dev/null)
+    echo "$size $file"
+done | sort -n | head -n $NUM_FILES | \
+while read size file
+do
+    echo "File: $file"
+    echo "Size: $size bytes"
+    echo "---"
+done
+

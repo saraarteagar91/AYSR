@@ -1,0 +1,2 @@
+Aplicación: Proton Pass - Celular
+Acceso por medio de invitacion de google, enviado a su correo "fabian.sierra@escuelaing.edu.co" con los permisos de lector, ya mi compañera Sara y mi persona tenemos permisos de administrador. 

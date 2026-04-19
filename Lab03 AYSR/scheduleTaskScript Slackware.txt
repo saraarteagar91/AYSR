@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Verificar que se pasaron 5 parámetros
+if [ $# -lt 5 ]; then
+    echo "Usage: $0 minute hour day month weekday"
+    echo "Example: $0 * * * * *"
+    exit 1
+fi
+
+# Construir la línea de cron
+CRON_TIME="$1 $2 $3 $4 $5"
+COMMAND="date >> /tmp/cron-test.txt"
+
+# Agregar al crontab
+(crontab -l 2>/dev/null; echo "$CRON_TIME $COMMAND") | crontab -
+
+echo "Task scheduled successfully:"
+echo "$CRON_TIME $COMMAND"
+

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 \"* * * * *\""
+    exit 1
+fi
+
+CRON_TIME="$1"
+COMMAND="date >> /tmp/cron-test.txt"
+
+(crontab -l 2>/dev/null; echo "$CRON_TIME $COMMAND") | crontab -
+
+echo "Task scheduled successfully:"
+echo "$CRON_TIME $COMMAND"

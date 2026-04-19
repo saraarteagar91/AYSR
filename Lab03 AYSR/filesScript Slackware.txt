@@ -1,0 +1,12 @@
+#!/bin/sh
+
+NUM_FILES="$1"
+MAX_SIZE="$2"
+
+if [ -z "$NUM_FILES" ] || [ -z "$MAX_SIZE" ]; then
+    echo "Usage: $0 number_of_files max_size"
+    exit 1
+fi
+
+find . -type f -size -"$MAX_SIZE" -exec ls -lh {} \; 2>/dev/null | \
+awk '{print $9, $5}' | sort -k2 -h | head -n "$NUM_FILES"
