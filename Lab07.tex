@@ -1,0 +1,618 @@
+\documentclass[conference]{IEEEtran}
+
+% ── Paquetes ──────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+% ── Estilo de código terminal ─────────────────────────────
+\lstdefinestyle{terminal}{
+    backgroundcolor=\color{black},
+    basicstyle=\ttfamily\scriptsize\color{white},
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray},
+    showstringspaces=false,
+    numbers=none,
+    xleftmargin=3pt,
+    xrightmargin=3pt,
+}
+
+\lstdefinestyle{cisco}{
+    backgroundcolor=\color{black!90},
+    basicstyle=\ttfamily\scriptsize\color{green!70!white},
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray},
+    showstringspaces=false,
+    numbers=none,
+    xleftmargin=3pt,
+    xrightmargin=3pt,
+}
+
+% ─────────────────────────────────────────────────────────
+\begin{document}
+
+% ── TÍTULO Y AUTORES ──────────────────────────────────────
+\title{Lab No. 07 -- Basic Infrastructure and Network Layer}
+
+\author{
+    \IEEEauthorblockN{Sara Viviana Arteaga Rodríguez}
+    \IEEEauthorblockA{Ingeniería de Sistemas}
+    \and
+    \IEEEauthorblockN{Diego Alejandro Mesa Alonso}
+    \IEEEauthorblockA{Ingeniería de Sistemas}
+    \and
+    \IEEEauthorblockN{Julián Felipe Morales Zambrano}
+    \IEEEauthorblockA{Ingeniería de Sistemas}
+}
+
+\maketitle
+
+% ── RESUMEN ───────────────────────────────────────────────
+\begin{abstract}
+Este laboratorio cubre la configuración y administración de redes a nivel de infraestructura.
+Se trabaja en tres sistemas operativos (Slackware, NetBSD y Windows Server) y se divide en
+varias secciones principales. Primero se instalan y estudian herramientas de diagnóstico de red
+como \texttt{netstat}, \texttt{vnstat}, \texttt{route} y \texttt{ethtool}, creando scripts con
+menús interactivos que presentan la información de forma clara. También se instala software de
+monitoreo de red basado en SNMP para supervisar las máquinas virtuales en tiempo real. En la
+parte de experimentos, se analiza el comportamiento del protocolo ICMP usando traceroute hacia
+diferentes sitios web alrededor del mundo, y se responden preguntas teóricas sobre comandos de
+routers Cisco. Luego se realiza la configuración física de routers Cisco, incluyendo contraseñas,
+nombre del dispositivo, sincronización de pantalla y mensaje del día. Se interconectan dos routers
+mediante cable serial, se explican conceptos como DTE/DCE y \texttt{clock rate}, y finalmente se
+configura enrutamiento estático para lograr comunicación completa entre todos los equipos del
+curso, verificando con \texttt{ping} y \texttt{traceroute}.
+\end{abstract}
+
+\begin{IEEEkeywords}
+redes, SNMP, Zabbix, routing estático, Cisco, ICMP, traceroute, NetBSD, Slackware, Windows Server
+\end{IEEEkeywords}
+
+% ─────────────────────────────────────────────────────────
+
+% ── SECCIÓN I: OTHER USEFUL COMMANDS ─────────────────────
+\section{Other Useful Commands}
+
+\subsection{red\_info.sh -- NetBSD}
+
+A continuación se muestra el menú principal del script de información de red ejecutado en NetBSD:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_01_netbsd_menu}
+    \caption{Menú principal de red\_info.sh en NetBSD.}
+    \label{fig:netbsd_menu}
+\end{figure}
+
+Por ejemplo, al seleccionar la opción 3 (Estadísticas de interfaces):
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_02_netbsd_opcion3}
+    \caption{Opción 3 -- Estadísticas de interfaces en NetBSD.}
+    \label{fig:netbsd_op3}
+\end{figure}
+
+\subsection{Verificar\_puerto.sh -- NetBSD}
+
+El script verificador de puertos indica si un puerto está abierto o cerrado e identifica
+el servicio activo:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_03_netbsd_puerto_abierto}
+    \caption{Puerto 80 abierto -- Verificar\_puerto.sh en NetBSD.}
+    \label{fig:netbsd_p80}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_04_netbsd_puerto_cerrado}
+    \caption{Puerto 8080 cerrado -- Verificar\_puerto.sh en NetBSD.}
+    \label{fig:netbsd_p8080}
+\end{figure}
+
+\subsection{red\_info.sh -- Slackware}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_05_slackware_menu}
+    \caption{Menú principal de red\_info.sh en Slackware.}
+    \label{fig:slack_menu}
+\end{figure}
+
+\subsection{Verificar\_puerto.sh -- Slackware}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_06_slackware_puerto}
+    \caption{Puerto 22 abierto (SSH) -- Verificar\_puerto.sh en Slackware.}
+    \label{fig:slack_puerto}
+\end{figure}
+
+\subsection{red\_info.sh -- Windows Server}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_07_windows_red_info_notepad}
+    \caption{Apertura de red\_info.ps1 en Windows Server.}
+    \label{fig:win_notepad}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_08_windows_menu}
+    \caption{Menú principal de red\_info.ps1 en Windows Server.}
+    \label{fig:win_menu}
+\end{figure}
+
+\subsection{Verificar\_puerto.sh -- Windows Server}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_09_windows_puerto}
+    \caption{Puerto 80 abierto -- Verificar\_puerto.ps1 en Windows Server.}
+    \label{fig:win_puerto}
+\end{figure}
+
+% ── SECCIÓN II: NETWORK MANAGEMENT ───────────────────────
+\section{Network Management}
+
+Prueba visual de que la red está siendo monitoreada en tiempo real desde un solo punto
+central con Zabbix.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_10_zabbix_hosts}
+    \caption{Panel de hosts en Zabbix.}
+    \label{fig:zabbix_hosts}
+\end{figure}
+
+A continuación se muestra cómo Zabbix monitorea el disco, CPU, memoria y red de cada
+sistema operativo en tiempo real:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_11_zabbix_netbsd}
+    \caption{Monitoreo de NetBSD en tiempo real con Zabbix.}
+    \label{fig:zabbix_netbsd}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_12_zabbix_slackware}
+    \caption{Monitoreo de Slackware en tiempo real con Zabbix.}
+    \label{fig:zabbix_slack}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_13_zabbix_windows}
+    \caption{Monitoreo de Windows Server en tiempo real con Zabbix.}
+    \label{fig:zabbix_win}
+\end{figure}
+
+Se ejecutó \texttt{snmpconf -g basic\_setup}, un asistente interactivo para configurar
+el demonio SNMP. Se configuraron 3 secciones:
+
+\begin{enumerate}
+    \item \textbf{Información del sistema:} Se definió la ubicación física
+    \textit{``Laboratorio de Redes''} y el contacto \textit{``sara@universidad.edu''}.
+
+    \item \textbf{Control de acceso (admin):} Usuario \texttt{admin} con nivel
+    \texttt{auth}, con permisos de lectura y escritura.
+
+    \item \textbf{Control de acceso (monitor):} Usuario \texttt{monitor} con nivel
+    \texttt{auth}, solo lectura. Es el usuario que Zabbix usa para consultar el sistema.
+\end{enumerate}
+
+SNMP permite a Zabbix consultar remotamente uso de CPU, memoria, disco, interfaces de
+red y procesos activos. Sin esta configuración, Zabbix no podría obtener datos del
+servidor vía SNMP.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_14_snmpconf}
+    \caption{Configuración del demonio SNMP con snmpconf -g basic\_setup.}
+    \label{fig:snmpconf}
+\end{figure}
+
+Con \texttt{zabbix\_server onestatus}, \texttt{zabbix\_agentd onestatus} y
+\texttt{snmpd onestatus} se confirmó que todos los servicios están activos y
+respondiendo correctamente en el puerto 161.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_15_zabbix_status}
+    \caption{Estado de zabbix\_server, zabbix\_agentd y snmpd.}
+    \label{fig:zabbix_status}
+\end{figure}
+
+% ── SECCIÓN III: NETWORK ADMINISTRATION - AZURE ──────────
+\section{Network Administration -- Azure}
+
+Se accedió al portal \url{https://portal.azure.com} con la cuenta institucional, se
+navegó a \textit{Education} $\rightarrow$ \textit{Templates} y se desplegó la plantilla
+\textbf{Web App Deployment from GitHub}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_17_azure_deploy}
+    \label{fig:azure_deploy}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{17.2.png}
+    \label{fig:azure_deploy}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{17.3png.png}
+    \label{fig:azure_deploy}
+\end{figure}
+
+\textbf{¿Qué pasa al refrescar?} Se incrementa el número de solicitudes en tiempo real,
+reflejado en los gráficos de Live Metrics. También varían el tiempo de respuesta y el uso
+de recursos.
+
+\textbf{¿Qué muestra?} Solicitudes, rendimiento, tiempos de respuesta, errores y
+actividad de usuarios en la aplicación.
+
+\textbf{¿Para qué sirve?} Permite monitorear el estado de la aplicación, detectar fallos
+y optimizar el rendimiento en tiempo real.
+
+\textbf{Capa de red:} Permite la comunicación entre cliente y servidor mediante
+direcciones IP y rutas.
+
+\textbf{Transporte y aplicación:} La capa de transporte asegura la entrega correcta
+(TCP), mientras que la capa de aplicación interpreta las solicitudes (HTTP).
+
+% ── SECCIÓN IV: USE OF ICMP MESSAGES ─────────────────────
+\section{Use of ICMP Messages}
+
+\subsection{Traceroute hacia Stanford y Computer Science Laboratory}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_18_traceroute_stanford}
+    \caption{Resultado de traceroute hacia Stanford University.}
+    \label{fig:stanford}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_19_traceroute_cs}
+    \caption{Resultado de traceroute hacia el Computer Science Laboratory.}
+    \label{fig:cs}
+\end{figure}
+
+\subsection{Traceroute hacia una página en Francia}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_20_traceroute_francia}
+    \caption{Traceroute hacia página en Francia.}
+    \label{fig:francia}
+\end{figure}
+
+\subsection{Open Visual Traceroute}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_22_ovt_prueba}
+    \caption{Prueba inicial de Open Visual Traceroute.}
+    \label{fig:ovt_prueba}
+\end{figure}
+
+\subsection{Fabricantes de automóviles en diferentes continentes}
+
+Se realizaron trazas hacia sitios web de fabricantes en distintos continentes:
+\texttt{toyota.jp} (Japón), \texttt{bmw.de} (Alemania), \texttt{ford.com}
+(Estados Unidos), \texttt{hyundai.com/au} (Australia) y \texttt{renault.fr} (Francia).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_23_toyota}
+    \caption{Open Visual Traceroute -- toyota.jp (Japón).}
+    \label{fig:toyota}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_24_bmw}
+    \caption{Open Visual Traceroute -- bmw.de (Alemania).}
+    \label{fig:bmw}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_25_ford}
+    \caption{Open Visual Traceroute -- ford.com (Estados Unidos).}
+    \label{fig:ford}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_26_hyundai}
+    \caption{Open Visual Traceroute -- hyundai.com/au (Australia).}
+    \label{fig:hyundai}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_27_renault}
+    \caption{Open Visual Traceroute -- renault.fr (Francia).}
+    \label{fig:renault}
+\end{figure}
+
+% ── SECCIÓN V: ROUTER COMMANDS ───────────────────────────
+\section{Some Questions About Router Commands}
+
+\begin{enumerate}
+    \item \textbf{enable password vs enable secret:}
+    \texttt{Enable password} guarda la contraseña en texto plano y \texttt{enable secret}
+    la cifra con MD5. Si ambas están configuradas, \texttt{enable secret} tiene precedencia
+    y \texttt{enable password} es ignorado.
+
+    \item \textbf{Console vs VTY:}
+    \texttt{Console} es el acceso físico directo al router mediante cable de consola
+    (RJ-45/DB9). \texttt{VTY} son las líneas virtuales para acceso remoto por Telnet o SSH,
+    normalmente de 0 a 4 (5 sesiones simultáneas).
+
+    \item \textbf{Proceso de arranque:}
+    El router ejecuta el POST, carga el Bootstrap desde ROM, busca y carga el IOS desde
+    Flash, luego carga la \texttt{startup-config} desde NVRAM a la RAM como
+    \texttt{running-config}. Si no existe, entra al Setup Dialog.
+
+    \item \textbf{Tipos de memoria:}
+    ROM, Flash Memory, NVRAM y DRAM.
+
+    \item \textbf{startup-config vs running-config:}
+    \texttt{startup-config} está en NVRAM y persiste al apagar el router.
+    \texttt{running-config} está en RAM y es la configuración activa; se pierde si el
+    router se apaga sin guardar.
+\end{enumerate}
+
+% ── SECCIÓN VI: BASIC CONFIGURATION OF ROUTERS ───────────
+\section{Setup: Access and Basic Configuration of Routers}
+
+Se realizó la configuración básica del router incluyendo contraseñas, nombre, sincronización
+de pantalla, descripción de interfaces, desactivación del DNS lookup y mensaje del día:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{enable.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{configT.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{saraconfig.png}
+    \label{fig:azure_deploy}
+\end{figure}
+Se configuraron las interfaces y se verificó conectividad entre computadores:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{connectivity.png}
+    \label{fig:azure_deploy}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{ping1.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{ping2.png}
+    \label{fig:azure_deploy}
+\end{figure}
+% ── SECCIÓN VII: SERIAL INTERCONNECTION ──────────────────
+\section{Setup -- Serial Interconnection}
+
+\textbf{¿Qué es un null modem?}
+Es un cable serial que conecta dos dispositivos directamente sin necesidad de un módem real,
+cruzando las líneas TX y RX para que dos equipos puedan comunicarse punto a punto. En
+laboratorio se usa para simular una conexión WAN serial entre dos routers.
+
+\textbf{¿Para qué sirve \texttt{clock rate}?}
+En conexiones seriales, el dispositivo DCE debe generar la señal de reloj que sincroniza la
+transmisión. El comando \texttt{clock rate} establece esa velocidad (ej. \texttt{clock rate 64000});
+sin ella la interfaz serial no puede intercambiar tráfico.
+
+\textbf{DTE y DCE:}
+DTE (Data Terminal Equipment) recibe la señal de reloj; DCE (Data Communications Equipment)
+la genera. En el laboratorio, el extremo DCE del cable serial debe configurar el
+\texttt{clock rate}. Para identificarlo se usa:
+
+\begin{lstlisting}[style=cisco]
+Router# show controllers serial 0/0/0
+\end{lstlisting}
+
+% ── SECCIÓN VIII: STATIC ROUTING ─────────────────────────
+\section{Static Routing}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{img_29_static_routing}
+    \caption{Configuración de rutas estáticas en los routers.}
+    \label{fig:static}
+\end{figure}
+
+% ── SECCIÓN IX: CLOSURE ───────────────────────────────────
+\section{Closure}
+
+Se borró la configuración de los routers con \texttt{erase startup-config} seguido de
+\texttt{reload}, dejando los dispositivos sin contraseñas ni rutas configuradas y listos
+para una nueva sesión. Se organizaron cables y equipos en el laboratorio.
+
+% ── CONCLUSIÓN ────────────────────────────────────────────
+\section{Conclusión}
+
+Este laboratorio permitió aplicar de manera práctica conceptos fundamentales de redes que
+normalmente se estudian de forma teórica. Trabajar con tres sistemas operativos distintos
+---Slackware, NetBSD y Windows Server--- para desarrollar scripts de diagnóstico de red
+evidenció cómo una misma tarea puede requerir enfoques completamente diferentes según la
+plataforma, y reforzó la capacidad de interpretar y presentar información del sistema de
+forma clara y automatizada.
+
+Configurar un servidor de monitoreo con SNMP fue especialmente útil para entender por qué
+la observabilidad es un componente crítico en redes empresariales. Poder ver en tiempo real
+el estado de CPU, memoria y tráfico de las máquinas virtuales deja claro que sin estas
+herramientas, detectar y resolver problemas en una red sería mucho más difícil. En esa misma
+línea, explorar Application Insights en Azure mostró cómo esta necesidad de visibilidad también
+existe en la nube, donde las aplicaciones deben monitorearse constantemente para garantizar
+su rendimiento.
+
+La parte más práctica del laboratorio fue sin duda la configuración de routers Cisco.
+Recuperar acceso, establecer contraseñas, conectar equipos por puerto serial y definir rutas
+estáticas manualmente ayudó a comprender de forma concreta cómo se construye y administra
+una red real. Verificar la conectividad con ping y traceroute al final del proceso confirmó
+que cada decisión de configuración tiene un impacto directo en la comunicación entre los
+dispositivos.
+
+% ── ANEXOS ────────────────────────────────────────────────
+\section*{Anexos}
+
+\subsection*{Instalación de Zabbix en NetBSD}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net1.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net2.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net3.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net4.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net5.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net6.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net7.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net8.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net9.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net10.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net11.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net12.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net13.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net14.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net15.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net16.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net17.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Net18.png}
+    \label{fig:azure_deploy}
+\end{figure}
+
+\subsection*{Instalación de Zabbix en Slackware}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Slack1.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Slack2.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Slack3.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Slack4.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\subsection*{Instalación de Zabbix en Windows Server}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Win1.png}
+    \label{fig:azure_deploy}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{Win2.png}
+    \label{fig:azure_deploy}
+\end{figure}
+
+\end{document}

@@ -1,0 +1,32 @@
+Clear-Host
+Write-Host ""
+Write-Host "  VERIFICADOR DE PUERTOS - Windows"
+Write-Host ""
+$puerto = Read-Host "  Ingrese el puerto que desea verificar"
+
+$resultado = netstat -an | Select-String ":$puerto "
+
+if ($resultado -eq $null) {
+    Write-Host ""
+    Write-Host "  El puerto $puerto esta CERRADO"
+    Write-Host ""
+} else {
+    $linea = $resultado[0] -split "\s+"
+    Write-Host ""
+    Write-Host "  El puerto $puerto esta ABIERTO"
+    Write-Host ""
+
+    switch ($puerto) {
+        "80"    { Write-Host "  Servicio: HTTP - Servidor web" }
+        "443"   { Write-Host "  Servicio: HTTPS - Servidor web seguro" }
+        "22"    { Write-Host "  Servicio: SSH - Acceso remoto seguro" }
+        "21"    { Write-Host "  Servicio: FTP - Transferencia de archivos" }
+        "161"   { Write-Host "  Servicio: SNMP - Monitoreo de red" }
+        "10050" { Write-Host "  Servicio: Zabbix Agent" }
+        "10051" { Write-Host "  Servicio: Zabbix Server" }
+        "5432"  { Write-Host "  Servicio: PostgreSQL - Base de datos" }
+        "3389"  { Write-Host "  Servicio: RDP - Escritorio remoto" }
+        default { Write-Host "  Servicio: Desconocido o personalizado" }
+    }
+}
+Write-Host ""
